@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch: # يسمح لك بتشغيل البناء يدوياً من زر Actions
+  workflow_dispatch:
 
 jobs:
   build:
@@ -12,11 +12,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. استدعاء الكود
+      # 1. تحميل الكود
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # 2. إعداد جافا 17 (ضروري لـ Gradle الحديث)
+      # 2. إعداد جافا 17
       - name: Setup Java
         uses: actions/setup-java@v3
         with:
@@ -29,19 +29,19 @@ jobs:
         with:
           python-version: '3.11'
 
-      # 4. تثبيت المكتبات وأداة Flet
+      # 4. تثبيت المكتبات (لبيئة البناء)
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install flet
-          pip install -r requirements.txt
+          pip install requests
+          pip install urllib3
 
-      # 5. بناء ملف APK
-      # الأمر 'yes' سيقوم بالضغط على y تلقائياً عند طلب تثبيت Flutter
-      # --verbose يعطينا تفاصيل عشان لو حصل حاجة نعرف السبب
+      # 5. بناء ملف APK (هنا الحل للشاشة البيضاء)
+      # --include-packages: يجبر التطبيق على أخذ المكتبات معه
       - name: Build APK
         run: |
-          yes | flet build apk --verbose
+          yes | flet build apk --include-packages requests,urllib3,charset_normalizer,idna,certifi --verbose
 
       # 6. رفع الملف النهائي
       - name: Upload APK
